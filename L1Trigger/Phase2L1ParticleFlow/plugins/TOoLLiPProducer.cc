@@ -81,7 +81,8 @@ void TOoLLiPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       LLPScores.push_back(-1.);
       continue;
     }
-    ap_fixed<16, 6> LLPScore = fJetId_->computeFixed(srcjet, vz, fUseRawPt_);
+    //ap_fixed<16, 6> LLPScore = fJetId_->computeFixed(srcjet, vz, fUseRawPt_);
+    ap_fixed<14,8,AP_TRN,AP_SAT,0> LLPScore = fJetId_->computeFixed(srcjet, vz, fUseRawPt_);
     LLPScores.push_back(LLPScore);
   }
 
@@ -97,7 +98,7 @@ void TOoLLiPProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("scPFL1Puppi"));
   desc.add<bool>("useRawPt", true);
-  desc.add<std::string>("TOoLLiPVersion", std::string("TOoLLiP_v1"));
+  desc.add<std::string>("TOoLLiPVersion", std::string("/home/users/russelld/TOOLLIP_TESTS/cmssw-tests/CMSSW_16_0_0_pre1/src/TOoLLiP/TOoLLiP_v3/TOoLLiP_v3"));
   desc.add<std::string>("NNInput", "input:0");
   desc.add<std::string>("NNOutput", "sequential/dense_2/Sigmoid");
   desc.add<int>("maxJets", 10);
