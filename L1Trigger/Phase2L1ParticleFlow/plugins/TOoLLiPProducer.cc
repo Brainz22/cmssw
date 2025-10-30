@@ -16,11 +16,15 @@
 #include <cmath>
 #include <vector>
 
+#include <filesystem>///////////////
+#include <iostream>//////////////
+
 #include <string>
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
 
-using namespace l1t;
+using namespace l1t;//////////////
+namespace fs = std::filesystem; //////////
 
 class TOoLLiPProducer : public edm::stream::EDProducer<> {
 public:
@@ -78,7 +82,7 @@ void TOoLLiPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (const auto& srcjet : *jets) {
     if (((fUseRawPt_ ? srcjet.rawPt() : srcjet.pt()) < fMinPt_) || std::abs(srcjet.eta()) > fMaxEta_ ||
         LLPScores.size() >= fMaxJets_) {
-      LLPScores.push_back(-1.);
+      LLPScores.push_back(-99.);
       continue;
     }
     //ap_fixed<16, 6> LLPScore = fJetId_->computeFixed(srcjet, vz, fUseRawPt_);
@@ -98,7 +102,10 @@ void TOoLLiPProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("scPFL1Puppi"));
   desc.add<bool>("useRawPt", true);
-  desc.add<std::string>("TOoLLiPVersion", std::string("/home/users/russelld/TOOLLIP_TESTS/cmssw-tests/CMSSW_16_0_0_pre1/src/TOoLLiP/TOoLLiP_v3/TOoLLiP_v3"));
+  //desc.add<std::string>("TOoLLiPVersion", std::string("/uscms/home/rmarroqu/nobackup/TOOLLIP_TESTS/cmssw/CMSSW_16_0_0_pre1/src/TOoLLiP/TOoLLiP_v3"));
+  std::string path = std::getenv("TOOLLIP_PATH") ? std::getenv("TOOLLIP_PATH") : "";
+  desc.add<std::string>("TOoLLiPVersion", std::string(path));
+
   desc.add<std::string>("NNInput", "input:0");
   desc.add<std::string>("NNOutput", "sequential/dense_2/Sigmoid");
   desc.add<int>("maxJets", 10);
