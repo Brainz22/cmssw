@@ -2,6 +2,8 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include <cmath>
 
+#include "L1Trigger/Phase2L1ParticleFlow/interface/writer.h"
+
 JetId::JetId(const std::string &iInput,
              const std::string &iOutput,
              const std::shared_ptr<hls4mlEmulator::Model> model,
@@ -57,7 +59,9 @@ void JetId::setNNVectorVar() {
     NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::ChargedHadron && fCharge_.get()[i0] < 0);  // Pion
     NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::ChargedHadron && fCharge_.get()[i0] > 0);  // Anti-Pion
     NNvectorVar_.push_back(fDZ_.get()[i0]);                                                               //dZ
-    NNvectorVar_.push_back(std::hypot(fDX_.get()[i0], fDY_.get()[i0]));                                   //d0
+    //NNvectorVar_.push_back(std::hypot(fDX_.get()[i0], fDY_.get()[i0]));
+    NNvectorVar_.push_back(fDX_.get()[i0]);          //dX
+    NNvectorVar_.push_back(fDY_.get()[i0]);          //dX                                 
     NNvectorVar_.push_back(fPt_.get()[i0]);   //pT as a fraction of jet pT
     NNvectorVar_.push_back(fEta_.get()[i0]);  //dEta from jet axis
     NNvectorVar_.push_back(fPhi_.get()[i0]);  //dPhi from jet axis
@@ -156,5 +160,11 @@ ap_fixed<16, 6> JetId::computeFixed(const l1t::PFJet &iJet, float vz, bool useRa
     }
   }
   setNNVectorVar();
-  return EvaluateNNFixed();
+
+  ap_fixed<14,8,AP_TRN,AP_SAT,0> score = EvaluateNNFixed();
+
+  Writer w;  
+  w.write(NNvectorVar_, score);
+
+  return score;
 }
