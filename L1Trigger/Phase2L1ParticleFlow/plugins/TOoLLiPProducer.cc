@@ -34,7 +34,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  std::unique_ptr<JetId> fJetId_;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   edm::EDGetTokenT<edm::View<l1t::PFJet>> const jets_;
@@ -45,8 +44,11 @@ private:
   int const fNParticles_;
   edm::EDGetTokenT<std::vector<l1t::VertexWord>> const fVtxEmu_;
 
+  // IMPORTANT: loader and model must be declared before fJetId_ to ensure proper destruction order
+  // The model's custom deleter may reference the loader, so loader must outlive the model
   hls4mlEmulator::ModelLoader loader;
   std::shared_ptr<hls4mlEmulator::Model> model;
+  std::unique_ptr<JetId> fJetId_;
 };
 
 TOoLLiPProducer::TOoLLiPProducer(const edm::ParameterSet& cfg)
@@ -57,10 +59,10 @@ TOoLLiPProducer::TOoLLiPProducer(const edm::ParameterSet& cfg)
       fMaxJets_(cfg.getParameter<int>("maxJets")),
       fNParticles_(cfg.getParameter<int>("nParticles")),
       fVtxEmu_(consumes<std::vector<l1t::VertexWord>>(cfg.getParameter<edm::InputTag>("vtx"))),
-      loader(hls4mlEmulator::ModelLoader(cfg.getParameter<string>("TOoLLiPVersion"))) {
-  model = loader.load_model();
-  fJetId_ = std::make_unique<JetId>(
-      cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), model, fNParticles_);
+      loader(cfg.getParameter<std::string>("TOoLLiPVersion")),
+      model(loader.load_model()),
+      fJetId_(std::make_unique<JetId>(
+          cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), model, fNParticles_)) {
   produces<edm::ValueMap<float>>("L1PFLLPJets");
 }
 
