@@ -2,6 +2,8 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include <cmath>
 
+#include "L1Trigger/Phase2L1ParticleFlow/interface/writer.h"
+
 JetId::JetId(const std::string &iInput,
              const std::string &iOutput,
              const std::shared_ptr<hls4mlEmulator::Model> model,
@@ -44,7 +46,7 @@ void JetId::setNNVectorVar() {
   NNvectorVar_.clear();
   for (int i0 = 0; i0 < fNParticles_; i0++) {
     if (fPt_.get()[i0] == 0) {
-      for (int i1 = 0; i1 < 13; i1++)
+      for (int i1 = 0; i1 < 14; i1++)
         NNvectorVar_.push_back(0);
       continue;
     }
@@ -154,5 +156,17 @@ ap_fixed<16, 6> JetId::computeFixed(const l1t::PFJet &iJet, float vz, bool useRa
     }
   }
   setNNVectorVar();
+
+  if (false) {
+
+    ap_fixed<14,8,AP_TRN,AP_SAT,0> score = EvaluateNNFixed();
+
+    Writer w;  
+    w.write(NNvectorVar_, score);
+    return score;
+  }else{
+
   return EvaluateNNFixed();
+  }
+
 }
