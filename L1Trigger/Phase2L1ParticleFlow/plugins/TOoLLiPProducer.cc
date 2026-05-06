@@ -16,11 +16,15 @@
 #include <cmath>
 #include <vector>
 
+#include <filesystem>///////////////
+#include <iostream>//////////////
+
 #include <string>
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
 
-using namespace l1t;
+using namespace l1t;//////////////
+namespace fs = std::filesystem; //////////
 
 class TOoLLiPProducer : public edm::stream::EDProducer<> {
 public:
@@ -30,7 +34,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  std::unique_ptr<JetId> fJetId_;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   edm::EDGetTokenT<edm::View<l1t::PFJet>> const jets_;
@@ -41,8 +44,11 @@ private:
   int const fNParticles_;
   edm::EDGetTokenT<std::vector<l1t::VertexWord>> const fVtxEmu_;
 
+  // IMPORTANT: loader and model must be declared before fJetId_ to ensure proper destruction order
+  // The model's custom deleter may reference the loader, so loader must outlive the model
   hls4mlEmulator::ModelLoader loader;
   std::shared_ptr<hls4mlEmulator::Model> model;
+  std::unique_ptr<JetId> fJetId_;
 };
 
 TOoLLiPProducer::TOoLLiPProducer(const edm::ParameterSet& cfg)
@@ -53,10 +59,10 @@ TOoLLiPProducer::TOoLLiPProducer(const edm::ParameterSet& cfg)
       fMaxJets_(cfg.getParameter<int>("maxJets")),
       fNParticles_(cfg.getParameter<int>("nParticles")),
       fVtxEmu_(consumes<std::vector<l1t::VertexWord>>(cfg.getParameter<edm::InputTag>("vtx"))),
-      loader(hls4mlEmulator::ModelLoader(cfg.getParameter<string>("TOoLLiPVersion"))) {
-  model = loader.load_model();
-  fJetId_ = std::make_unique<JetId>(
-      cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), model, fNParticles_);
+      loader(cfg.getParameter<std::string>("TOoLLiPVersion")),
+      model(loader.load_model()),
+      fJetId_(std::make_unique<JetId>(
+          cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), model, fNParticles_)) {
   produces<edm::ValueMap<float>>("L1PFLLPJets");
 }
 
@@ -78,10 +84,10 @@ void TOoLLiPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (const auto& srcjet : *jets) {
     if (((fUseRawPt_ ? srcjet.rawPt() : srcjet.pt()) < fMinPt_) || std::abs(srcjet.eta()) > fMaxEta_ ||
         LLPScores.size() >= fMaxJets_) {
-      LLPScores.push_back(-1.);
+      LLPScores.push_back(-999.);
       continue;
     }
-    ap_fixed<16, 6> LLPScore = fJetId_->computeFixed(srcjet, vz, fUseRawPt_);
+    ap_fixed<14,8,AP_TRN,AP_SAT,0> LLPScore = fJetId_->computeFixed(srcjet, vz, fUseRawPt_);
     LLPScores.push_back(LLPScore);
   }
 
@@ -97,7 +103,10 @@ void TOoLLiPProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("scPFL1Puppi"));
   desc.add<bool>("useRawPt", true);
-  desc.add<std::string>("TOoLLiPVersion", std::string("TOoLLiP_v1"));
+  //desc.add<std::string>("TOoLLiPVersion", std::string("/uscms/home/rmarroqu/nobackup/TOOLLIP_TESTS/cmssw/CMSSW_16_0_0_pre1/src/TOoLLiP/TOoLLiP_v3"));
+  std::string path = std::getenv("TOOLLIP_PATH") ? std::getenv("TOOLLIP_PATH") : "";
+  desc.add<std::string>("TOoLLiPVersion", std::string(path));
+
   desc.add<std::string>("NNInput", "input:0");
   desc.add<std::string>("NNOutput", "sequential/dense_2/Sigmoid");
   desc.add<int>("maxJets", 10);
