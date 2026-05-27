@@ -45,7 +45,7 @@ void JetId::setNNVectorVar() {
   NNvectorVar_.clear();
   for (int i0 = 0; i0 < fNParticles_; i0++) {
     if (fPt_.get()[i0] == 0) {
-      for (int i1 = 0; i1 < 14; i1++)
+      for (int i1 = 0; i1 < 13; i1++)
         NNvectorVar_.push_back(0);
       continue;
     }
@@ -58,9 +58,7 @@ void JetId::setNNVectorVar() {
     NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::ChargedHadron && fCharge_.get()[i0] < 0);  // Pion
     NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::ChargedHadron && fCharge_.get()[i0] > 0);  // Anti-Pion
     NNvectorVar_.push_back(fDZ_.get()[i0]);                                                               //dZ
-    //NNvectorVar_.push_back(std::hypot(fDX_.get()[i0], fDY_.get()[i0]));
-    NNvectorVar_.push_back(fDX_.get()[i0]);   //dX
-    NNvectorVar_.push_back(fDY_.get()[i0]);   //dY
+    NNvectorVar_.push_back(std::hypot(fDX_.get()[i0], fDY_.get()[i0]));
     NNvectorVar_.push_back(fPt_.get()[i0]);   //pT as a fraction of jet pT
     NNvectorVar_.push_back(fEta_.get()[i0]);  //dEta from jet axis
     NNvectorVar_.push_back(fPhi_.get()[i0]);  //dPhi from jet axis
@@ -77,7 +75,7 @@ float JetId::EvaluateNN() {
 }  //end EvaluateNN
 
 ap_fixed<14,8,AP_TRN,AP_SAT,0>JetId::EvaluateNNFixed() {
-  ap_fixed<12,6,AP_TRN,AP_SAT,0> modelInput[140] = {};
+  ap_fixed<12,6,AP_TRN,AP_SAT,0> modelInput[130] = {};
   for (unsigned int i = 0; i < NNvectorVar_.size(); i++) {
     modelInput[i] = NNvectorVar_[i];
   }
@@ -156,14 +154,6 @@ ap_fixed<16, 6> JetId::computeFixed(const l1t::PFJet &iJet, float vz, bool useRa
   }
   setNNVectorVar();
 
-  if (false) {
-
-    ap_fixed<14,8,AP_TRN,AP_SAT,0> score = EvaluateNNFixed();
-
-    return score;
-  }else{
-
   return EvaluateNNFixed();
-  }
 
 }

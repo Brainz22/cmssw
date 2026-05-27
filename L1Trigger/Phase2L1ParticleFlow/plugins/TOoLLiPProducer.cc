@@ -103,7 +103,6 @@ void TOoLLiPProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("scPFL1Puppi"));
   desc.add<bool>("useRawPt", true);
-  //desc.add<std::string>("TOoLLiPVersion", std::string("/uscms/home/rmarroqu/nobackup/TOOLLIP_TESTS/cmssw/CMSSW_16_0_0_pre1/src/TOoLLiP/TOoLLiP_v3"));
   std::string path = std::getenv("TOOLLIP_PATH") ? std::getenv("TOOLLIP_PATH") : "";
   desc.add<std::string>("TOoLLiPVersion", std::string(path));
 
