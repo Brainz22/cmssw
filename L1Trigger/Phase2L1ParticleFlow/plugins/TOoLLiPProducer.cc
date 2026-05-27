@@ -23,9 +23,8 @@
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
 
-using namespace l1t;//////////////
+using namespace l1t;
 
-//namespace fs = std::filesystem; //////////
 
 class TOoLLiPProducer : public edm::stream::EDProducer<> {
 public:
