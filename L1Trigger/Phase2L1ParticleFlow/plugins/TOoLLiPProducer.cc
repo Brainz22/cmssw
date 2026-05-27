@@ -24,7 +24,8 @@
 #include "hls4ml/emulator.h"
 
 using namespace l1t;//////////////
-namespace fs = std::filesystem; //////////
+
+//namespace fs = std::filesystem; //////////
 
 class TOoLLiPProducer : public edm::stream::EDProducer<> {
 public:
@@ -44,8 +45,6 @@ private:
   int const fNParticles_;
   edm::EDGetTokenT<std::vector<l1t::VertexWord>> const fVtxEmu_;
 
-  // IMPORTANT: loader and model must be declared before fJetId_ to ensure proper destruction order
-  // The model's custom deleter may reference the loader, so loader must outlive the model
   hls4mlEmulator::ModelLoader loader;
   std::shared_ptr<hls4mlEmulator::Model> model;
   std::unique_ptr<JetId> fJetId_;
