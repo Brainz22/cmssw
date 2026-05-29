@@ -76,7 +76,7 @@ float JetId::EvaluateNN() {
 }  //end EvaluateNN
 
 ap_fixed<14,8,AP_TRN,AP_SAT,0>JetId::EvaluateNNFixed() {
-  ap_fixed<12,6,AP_TRN,AP_SAT,0> modelInput[140] = {};
+  ap_fixed<12,6,AP_TRN,AP_SAT,0> modelInput[130] = {};
   for (unsigned int i = 0; i < NNvectorVar_.size(); i++) {
     modelInput[i] = NNvectorVar_[i];
   }
@@ -155,7 +155,7 @@ ap_fixed<16, 6> JetId::computeFixed(const l1t::PFJet &iJet, float vz, bool useRa
   }
   setNNVectorVar();
 
-  if (false) {
+  if (true) {
 
     ap_fixed<14,8,AP_TRN,AP_SAT,0> score = EvaluateNNFixed();
 
