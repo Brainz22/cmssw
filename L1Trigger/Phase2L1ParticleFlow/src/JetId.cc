@@ -46,7 +46,7 @@ void JetId::setNNVectorVar() {
   NNvectorVar_.clear();
   for (int i0 = 0; i0 < fNParticles_; i0++) {
     if (fPt_.get()[i0] == 0) {
-      for (int i1 = 0; i1 < 14; i1++)
+      for (int i1 = 0; i1 < 13; i1++)
         NNvectorVar_.push_back(0);
       continue;
     }
@@ -59,9 +59,7 @@ void JetId::setNNVectorVar() {
     NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::ChargedHadron && fCharge_.get()[i0] < 0);  // Pion
     NNvectorVar_.push_back(fId_.get()[i0] == l1t::PFCandidate::ChargedHadron && fCharge_.get()[i0] > 0);  // Anti-Pion
     NNvectorVar_.push_back(fDZ_.get()[i0]);                                                               //dZ
-    //NNvectorVar_.push_back(std::hypot(fDX_.get()[i0], fDY_.get()[i0]));
-    NNvectorVar_.push_back(fDX_.get()[i0]);   //dX
-    NNvectorVar_.push_back(fDY_.get()[i0]);   //dY
+    NNvectorVar_.push_back(std::hypot(fDX_.get()[i0], fDY_.get()[i0]));
     NNvectorVar_.push_back(fPt_.get()[i0]);   //pT as a fraction of jet pT
     NNvectorVar_.push_back(fEta_.get()[i0]);  //dEta from jet axis
     NNvectorVar_.push_back(fPhi_.get()[i0]);  //dPhi from jet axis
