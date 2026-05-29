@@ -65,7 +65,7 @@ void Writer::write(const std::vector<float>& array, ap_fixed<14,8,AP_TRN,AP_SAT,
 
             //outputFile << "This line will be appended and the numbers below." << std::endl;
             //for (size_t i = 0; i < array.size(); i++){
-            for (size_t i = 0; i < 140; i++){
+            for (size_t i = 0; i < 130; i++){
                         outputFile << array[i]  << ",";  
                  }
             outputFile << score << std::endl;
@@ -100,7 +100,7 @@ void Writer::write(const std::vector<float>& array, ap_fixed<14,8,AP_TRN,AP_SAT,
                     //outputFile << "Hello, world! This is a line of text." << std::endl;
                     //outputFile << "write strings, numbers, and other variables: ";
 
-                    for (size_t i = 0; i < 140; i++){
+                    for (size_t i = 0; i < 130; i++){
                         outputFile << array[i]  << ",";  
                  }
 
